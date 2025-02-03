@@ -91,8 +91,6 @@ class TestLocalizationConfigs(unittest.TestCase):
 
     def test_load_locale_config_nested_inheritance(self):
         config = load_locale_config("ur", locales_dir=TEST_LOCALES_DIR)
-        print(config, file=sys.stderr)
-        logging.getLogger().debug(str(config),)
         self.assertEqual(config["farewell"], "Goodbye")  # Inherited from "en"
         self.assertEqual(config["nested.key"], "قيمة")  # Inherited from "ar"
 

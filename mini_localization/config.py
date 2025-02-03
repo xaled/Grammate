@@ -99,16 +99,16 @@ def load_locale_config(locale: str, locales_dir: str = DEFAULT_LOCAL_DIR,
 
 
 def resolve_inheritance(config: dict, locales_dir: str, path=()) -> dict:
+    for key, value in config.items():
+        if isinstance(value, dict):
+            sub_path = path + (key,)
+            config[key] = resolve_inheritance(value, locales_dir=locales_dir, path=sub_path)
+
     if '$extends' in config:
         parent_locale = config.pop('$extends')
         parent_config = _load_config(parent_locale, locales_dir=locales_dir) or {}
         sub_parent_config = resolve_dict_path(parent_config, path)
         config = merge_dicts(sub_parent_config, config)
-
-    for key, value in config.items():
-        if isinstance(value, dict) and '$extends' in value:
-            sub_path = path + (key,)
-            config[key] = resolve_inheritance(value, locales_dir=locales_dir, path=sub_path)
 
     return config
 
