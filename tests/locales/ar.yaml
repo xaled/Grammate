@@ -1,0 +1,4 @@
+greeting: "أهلاً"
+farewell: "الوداع"
+nested:
+  key: "قيمة"
