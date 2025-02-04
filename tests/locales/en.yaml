@@ -2,3 +2,5 @@ greeting: "Hello"
 farewell: "Goodbye"
 nested:
   key: "Value"
+month: 'month'
+month.plural: 'months'

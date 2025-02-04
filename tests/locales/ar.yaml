@@ -2,3 +2,9 @@ greeting: "أهلاً"
 farewell: "الوداع"
 nested:
   key: "قيمة"
+month: شهر
+month.plural:
+  - شهر
+  - أشهر
+  - شهرين
+  - شهرا
