@@ -8,3 +8,7 @@ month.plural:
   - أشهر
   - شهرين
   - شهرا
+key:
+  subkey1: "test1"
+  subkey2: "test2"
+key.subkey1: "flat_test"

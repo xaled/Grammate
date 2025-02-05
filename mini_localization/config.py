@@ -1,9 +1,42 @@
 from typing import Optional
 import yaml
 import os
+from collections.abc import Mapping
 
 DEFAULT_LOCAL_DIR = 'locales'
 default_locale = 'en'
+
+
+class ConfigDict(Mapping):
+    def __init__(self, config: dict):
+        self.config = config
+
+    def __getitem__(self, k):
+        key_path = tuple(k.split('.'))
+        return ConfigDict.config_get(self.config, key_path)
+
+    def __len__(self):
+        return self.config.__len__()
+
+    def __iter__(self):
+        return self.config.__iter__()
+
+    @staticmethod
+    def config_get(obj: dict, key_path: tuple[str]):
+        for i in range(len(key_path)):
+            stem, child = key_path[:-i], key_path[-i:]
+            if i == 0:
+                stem, child = child, stem
+            stem_key = '.'.join(stem)
+            if stem_key in obj:
+                value = obj[stem_key]
+                if child and isinstance(value, dict):
+                    return ConfigDict.config_get(value, child)
+                elif len(child) == 1 and isinstance(value, list):
+                    return value[int(child[0])]
+                elif not child:
+                    return value
+        return None
 
 
 def set_default_locale(locale):
@@ -51,7 +84,7 @@ def merge_dicts(base: dict, override: dict) -> dict:
 
 
 def load_locale_config(locale: str, locales_dir: str = DEFAULT_LOCAL_DIR,
-                       fallback_locale: Optional[str] = None) -> dict:
+                       fallback_locale: Optional[str] = None) -> ConfigDict:
     lang, _, country = locale.partition('_')
     # Load locale configurations
 
@@ -88,8 +121,7 @@ def load_locale_config(locale: str, locales_dir: str = DEFAULT_LOCAL_DIR,
     # Resolve inheritance
     locale_config = resolve_inheritance(locale_config, locales_dir)
 
-    # Flatten the config
-    return flatten_config(locale_config)
+    return ConfigDict(locale_config)
 
 
 # def eval_condition(condition: Union[str, List[str]], locale: str, lang: str) -> bool:

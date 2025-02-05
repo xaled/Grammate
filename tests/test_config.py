@@ -94,6 +94,17 @@ class TestLocalizationConfigs(unittest.TestCase):
         self.assertEqual(config["farewell"], "Goodbye")  # Inherited from "en"
         self.assertEqual(config["nested.key"], "قيمة")  # Inherited from "ar"
 
+    def test_load_locale_config_nested_keys(self):
+        config = load_locale_config("ar", locales_dir=TEST_LOCALES_DIR)
+        self.assertEqual(config["nested.key"], "قيمة")
+        self.assertEqual(config["month"], "شهر")
+        self.assertIsInstance(config["month.plural"], list)
+        self.assertEqual(config["month.plural.1"], "أشهر")
+
+        # test conflict precedence
+        self.assertIsInstance(config["key"], dict)
+        self.assertEqual(config["key.subkey1"], "flat_test")
+
     def test_load_locale_config_with_language_inheritance(self):
         config = load_locale_config("ar_MA", locales_dir=TEST_LOCALES_DIR)
         self.assertEqual(config["greeting"], "مرحبا")  # custom from "ar_MA"
