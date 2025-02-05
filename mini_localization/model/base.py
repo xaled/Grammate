@@ -7,7 +7,7 @@ class BaseLocale(ABC):
         pass
 
     @abstractmethod
-    def get_rule(self, key, default=None):
+    def get_modifier(self, key, default=None):
         pass
 
     @abstractmethod
@@ -19,15 +19,15 @@ class BaseLocale(ABC):
         pass
 
     @abstractmethod
-    def apply_rule(self, key, rule_id, *args, **kwargs):
+    def apply_modifier(self, modifier_id, *args):
         pass
 
     @abstractmethod
-    def get_text(self, text_key, default=None, *args):
+    def get_text(self, text_key, **kwargs):
         pass
 
     @abstractmethod
-    def register_rule(self, rule_id, rule_func):
+    def register_modifier(self, modifier_id, modifier_func):
         pass
 
     @abstractmethod
