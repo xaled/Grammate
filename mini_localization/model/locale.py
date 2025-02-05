@@ -1,5 +1,6 @@
 from .base import BaseLocale
 from ..config import ConfigDict
+from ..parser import ExpressionParser, BracketExpression, BraceExpression
 
 
 class Locale(BaseLocale):
@@ -29,26 +30,34 @@ class Locale(BaseLocale):
             return formatter(obj, self, fmt=fmt)
         if hasattr(obj, '__localized_format__'):
             return getattr(obj, '__localized_format__')(self, fmt=fmt)
+        if hasattr(obj, '__format__'):
+            return getattr(obj, '__format__')(fmt)
         return str(obj)
 
     def apply_modifier(self, modifier_id, *args):
         modifier = self.get_modifier(modifier_id)
         if not modifier:
-            raise ValueError(f"Rule {modifier_id=} not found!")
-        resolved_config = self.get(config_key)
-        return modifier(resolved_config, *args, **kwargs)
+            raise ValueError(f"Modifier {modifier_id=} not found!")
+        return modifier(*args)
 
     def get_text(self, text_key, **kwargs):
-        default = default or text_key
-        resolved_config = self.get(text_key, default=default)
+        text = self.get(text_key, default=text_key)
+        expression_parser = ExpressionParser()
+        resolved = False
 
-        if isinstance(resolved_config, list) and resolved_config:
-            text = str(resolved_config[0])
-        else:
-            text = str(resolved_config)
+        while not resolved:
+            result, resolved = expression_parser.parse(text)
+            buffer = list()
+            for part in result:
+                if isinstance(part, BraceExpression):  # formatting
+                    buffer.append(self.format(part.formatted_obj, part.format_spec))
+                elif isinstance(part, BracketExpression):
+                    buffer.append(self._process_bracket_expr(part, **kwargs))
+                else:
+                    buffer.append(part)
 
-        if args:
-            text = text % args
+                text = ''.join(buffer)
+
         return text
 
     def register_modifier(self, modifier_id, modifier_func):
@@ -57,43 +66,16 @@ class Locale(BaseLocale):
     def register_formatter(self, formatter_id, formatter_func):
         self.formatters[formatter_id] = formatter_func
 
-    def format_ex(self, string: str, **kwargs):
+    def _process_bracket_expr(self, bracket_expr: BracketExpression, **kwargs) -> str:
+        key = bracket_expr.stem
 
-        string = self.get_text(string)
-        unresolved = True
-
-        def parse_rule_args(args_str: str):
-            args = []
-            for arg in args_str.split(','):
-                if arg.startswith('$'):
-                    key = arg[1:]
-                    args.append(kwargs.get(key, arg))  # Replace dynamic args with value from kwargs
-                else:
-                    args.append(arg)
-            return args
-
-        def replace_rule(match):
-            nonlocal unresolved
-            unresolved = True
-            rule_str = match.group(1)
-            key, rule_with_args = rule_str.split('.', 1)
-            rule_id, args_str = rule_with_args.split(':', 1)
-            args = parse_rule_args(args_str)
-
-            # Apply the rule (For now, we only handle mock rules like plural)
-            return self.apply_modifier(key, rule_id, *args)
-
-        def replace_placeholder(match):
-            nonlocal unresolved
-            unresolved = True
-            key = match.group(1)
-            return str(kwargs.get(key, f'{{{key}}}'))
-
-        while unresolved:
-            unresolved = False
-            string = RULE_PATTERN.sub(replace_rule, string)
-
-            unresolved = False
-            string = PLACEHOLDER_PATTERN.sub(replace_placeholder, string)
-
-        return string
+        if bracket_expr.special == '!':
+            # modifier
+            resolved_args = [kwargs.get(arg[1:], None) if arg and arg[0] == '$' else arg for arg in
+                             bracket_expr.args or []]
+            return self.apply_modifier(key, *resolved_args)
+        else:
+            # getter
+            if bracket_expr.special == '$':
+                key = kwargs.get(key, default=key)  # resolve key
+            return self.get(key, default=key)

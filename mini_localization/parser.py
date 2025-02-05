@@ -2,22 +2,23 @@ from typing import List, Union, Optional, Tuple
 from dataclasses import dataclass
 import re
 
-BRACKET_PATTERN = re.compile(r'^\[((?:\$|!)?[a-z0-9_]+(?:\.[a-z0-9_]+)*)(?::([^\]]+))?\]$', re.IGNORECASE)
+BRACKET_PATTERN = re.compile(r'^\[(\$|!)?([a-z0-9_]+(?:\.[a-z0-9_]+)*)(?::([^\]]+))?\]$', re.IGNORECASE)
 BRACE_PATTERN = re.compile(r'^{([a-z_][a-z0-9_]*?)(:[^\}]+)?}$', re.IGNORECASE)
 
 
 @dataclass
 class BracketExpression:
     stem: str
+    special: Optional[str] = None
     args: Optional[tuple[str]] = None
 
     @staticmethod
     def parse(expression):
         match = BRACKET_PATTERN.match(expression)
         if match:
-            args = tuple(match.group(2).split(',')) if match.group(2) else None
+            args = tuple(match.group(3).split(',')) if match.group(3) else None
             # TODO validate args
-            return BracketExpression(match.group(1), args=args)
+            return BracketExpression(match.group(2), special=match.group(1) or None, args=args)
 
         return expression
 

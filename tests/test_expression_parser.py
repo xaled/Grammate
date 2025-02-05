@@ -47,7 +47,8 @@ class TestExpressionParser(unittest.TestCase):
     def test_bracket_expression_2(self):
         result, resolved = self.parser.parse("[!adj:apple,$color,fem,indef,marfu3]")
         self.assertIsInstance(result[0], BracketExpression)
-        self.assertEqual(result[0].stem, "!adj")
+        self.assertEqual(result[0].stem, "adj")
+        self.assertEqual(result[0].special, "!")
         self.assertEqual(result[0].args, ("apple", "$color", "fem", "indef", "marfu3"))
 
     def test_multiple_expressions(self):
@@ -59,7 +60,8 @@ class TestExpressionParser(unittest.TestCase):
         self.assertEqual(result[1].format_spec, None)
         self.assertEqual(result[2], " and ")
         self.assertIsInstance(result[3], BracketExpression)
-        self.assertEqual(result[3].stem, "!plural")
+        self.assertEqual(result[3].stem, "plural")
+        self.assertEqual(result[3].special, "!")
         self.assertEqual(result[3].args, ('friend', '$count'))
         self.assertTrue(not resolved)
 
