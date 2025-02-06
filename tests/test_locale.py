@@ -70,7 +70,7 @@ class TestLocale(unittest.TestCase):
         self.locale.register_formatter(date3_formatter_id, format_date3)
 
         # Mock modifier for uppercase
-        def uppercase_modifier(text):
+        def uppercase_modifier(locale, text):
             return text.upper()
 
         self.locale.register_modifier('uppercase', uppercase_modifier)

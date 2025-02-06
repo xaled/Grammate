@@ -4,6 +4,7 @@ nested:
   key: "Value"
 month: 'month'
 month.plural: 'months'
+apple.plural: 'apples'
 date:
   format:
     long: '%A, %B %d, %Y'  # Example: Monday, January 01, 2024

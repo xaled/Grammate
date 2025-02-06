@@ -42,14 +42,16 @@ class Locale(BaseLocale):
         modifier = self.get_modifier(modifier_id)
         if not modifier:
             raise ValueError(f"Modifier {modifier_id=} not found!")
-        return modifier(*args)
+        return modifier(self, *args)
 
     def get_text(self, text_key, **kwargs):
         text = self.get(text_key, default=text_key)
         expression_parser = ExpressionParser()
         resolved = False
+        print(text)
         while not resolved:
             result, resolved = expression_parser.parse(text)
+            print(result, resolved)
             buffer = list()
             for part in result:
                 if isinstance(part, BraceExpression):  # formatting
@@ -60,6 +62,7 @@ class Locale(BaseLocale):
                     buffer.append(part)
 
                 text = ''.join(buffer)
+            print(text)
 
         return text
 

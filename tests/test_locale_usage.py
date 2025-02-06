@@ -1,5 +1,5 @@
 import unittest
-from mini_localization import get_locale, get_text, setup_locale, ProxyLocale, Locale
+from mini_localization import get_locale, get_text, setup_locale, ProxyLocale, Locale, register_modifier
 from dataclasses import dataclass
 from datetime import date
 
@@ -36,11 +36,65 @@ class TestLocale(unittest.TestCase):
         #
         # # modifiers
         #
-        # def plural_default(singular, value, *args):
-        #     if value == 1:
-        #
-        #     pass
+        def plural_default(locale, singular, value, *args):
+            form = locale.get(singular, default=singular)
+            if value != 1:
+                form = locale.get(singular + '.plural', default=form)
 
+            if 'without_value' in args:
+                return form
+            return f'{value} {form}'
+
+        def plural_ar(locale, singular, value, *args):
+            forms = locale.get(singular + '.plural') or [locale.get(singular)]
+            base_form = forms[0]
+            plural_form = forms[1] if len(forms) > 1 else base_form
+            dual_form = forms[2] if len(forms) > 2 else base_form
+            mansub_form = forms[3] if len(forms) > 3 else base_form
+            rest = value % 100
+
+            with_value = 'without_value' not in args
+
+            if value == 1:
+                formatted = base_form
+                # return f"{formatted} {value}" if with_value else formatted # reversed form for 1
+            elif value == 2:
+                formatted = dual_form
+                if dual_form != base_form:
+                    return dual_form
+            elif 2 < rest <= 10:
+                formatted = plural_form
+            elif rest > 10:
+                formatted = mansub_form
+            else:
+                formatted = base_form
+
+            return f"{value} {formatted}" if with_value else formatted
+
+        def adj_en(locale, word, adj, *args):
+            word = locale.get(word, default=word)
+            adj = locale.get(adj, default=adj)
+
+            return f'{adj} {word}'
+
+        def adj_ar(locale, word, adj, *args):
+            word = locale.get(word, default=word)
+            adj_forms = locale.get(f'{adj}.forms', default={})
+            adj = locale.get(adj, default=adj)
+            if 'fem' in args:
+                adj = adj_forms.get('fem') or adj
+            else:
+                adj = adj_forms.get('masc') or adj
+
+            return f'{word} {adj}'
+
+        # register plural modifiers
+        register_modifier('plural', plural_default)
+        register_modifier('plural', plural_ar, locale='ar')
+
+        # register adj modifier
+        register_modifier('adj', adj_en, locale='en')
+        register_modifier('adj', adj_ar, locale='ar')
 
     def test_get_text_plain_string(self):
         self.current_locale = 'en'
@@ -111,10 +165,51 @@ class TestLocale(unittest.TestCase):
         result = get_text("{date:long}", date=Date1(1988, 9, 21))
         self.assertEqual(result, "الأربعاء، 21 شتنبر 1988")
 
-    # def test_get_text_with_modifier(self):
-    #     result = self.locale.get_text("shout")
-    #     self.assertEqual(result, "HELLO")
-    #
+    def test_get_text_with_plural_modifier(self):
+        self.current_locale = 'en'
+
+        result = get_text("I have [!plural:apple,$count]!", count=1)
+        self.assertEqual(result, "I have 1 apple!")
+        result = get_text("I have [!plural:apple,$count]!", count=2)
+        self.assertEqual(result, "I have 2 apples!")
+
+        self.current_locale = 'ar'
+
+        result = get_text("I have [!plural:apple,$count]!", count=0)
+        self.assertEqual(result, "عندي 0 تفاحة!")
+
+        result = get_text("I have [!plural:apple,$count]!", count=1)
+        self.assertEqual(result, "عندي 1 تفاحة!")
+
+        result = get_text("I have [!plural:apple,$count]!", count=2)
+        self.assertEqual(result, "عندي تفاحتين!")
+
+        result = get_text("I have [!plural:apple,$count]!", count=5)
+        self.assertEqual(result, "عندي 5 تفاحات!")
+
+        result = get_text("I have [!plural:apple,$count]!", count=60)
+        self.assertEqual(result, "عندي 60 تفاحةً!")
+
+        result = get_text("I have [!plural:apple,$count]!", count=105)
+        self.assertEqual(result, "عندي 105 تفاحات!")
+
+        result = get_text("I have [!plural:apple,$count]!", count=1000)
+        self.assertEqual(result, "عندي 1000 تفاحة!")
+
+    def test_get_text_with_adj_modifier(self):
+        self.current_locale = 'en'
+        result = get_text("I have a [!adj:apple,$adj]!", adj='red')
+        self.assertEqual(result, "I have a red apple!")
+        result = get_text("I have a [!adj:notebook,$adj]!", adj='red')
+        self.assertEqual(result, "I have a red notebook!")
+
+        self.current_locale = 'ar'
+        result = get_text("I have a [!adj:apple,$adj]!", adj='red')
+        self.assertEqual(result, "عندي تفاحة حمراء!")
+        result = get_text("I have a [!adj:notebook,$adj]!", adj='red')
+        self.assertEqual(result, "عندي دفتر أحمر!")
+
+
     # def test_decorators(self):
     #     pass # TODO
 

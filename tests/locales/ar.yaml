@@ -9,10 +9,6 @@ month.plural:
   - شهرين
   - شهرا
   - شهران
-red: أحمر
-red.forms:
-  masc: أحمر
-  fem: حمراء
 date:
   format:
     long: '%A، %d %B %Y'   # Example: الإثنين، 01 يناير 2024
@@ -46,3 +42,17 @@ key.subkey1: "flat_test"
 plain_text: 'نص عادي'
 "${price:.2f}": "{price:.2f} [currency]"
 currency: دينار
+"I have [!plural:apple,$count]!": "عندي [!plural:apple,$count]!"
+apple: تفاحة
+apple.plural:
+  - تفاحة
+  - تفاحات
+  - تفاحتين
+  - تفاحةً
+"I have a [!adj:apple,$adj]!": "عندي [!adj:apple,$adj,fem]!"
+red: أحمر
+red.forms:
+  masc: أحمر
+  fem: حمراء
+"I have a [!adj:notebook,$adj]!": "عندي [!adj:notebook,$adj,masc]!"
+notebook: دفتر
