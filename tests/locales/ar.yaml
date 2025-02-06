@@ -8,7 +8,41 @@ month.plural:
   - أشهر
   - شهرين
   - شهرا
+  - شهران
+red: أحمر
+red.forms:
+  masc: أحمر
+  fem: حمراء
+date:
+  format:
+    long: '%A، %d %B %Y'   # Example: الإثنين، 01 يناير 2024
+    short: '%d/%m/%Y'      # Example: 01/01/2024
+  months:
+    1: يناير
+    2: فبراير
+    3: مارس
+    4: أبريل
+    5: مايو
+    6: يونيو
+    7: يوليو
+    8: أغسطس
+    9: سبتمبر
+    10: أكتوبر
+    11: نوفمبر
+    12: ديسمبر
+  week_day:
+    0: الإثنين
+    1: الثلاثاء
+    2: الأربعاء
+    3: الخميس
+    4: الجمعة
+    5: السبت
+    6: الأحد
+
 key:
   subkey1: "test1"
   subkey2: "test2"
 key.subkey1: "flat_test"
+plain_text: 'نص عادي'
+"${price:.2f}": "{price:.2f} [currency]"
+currency: دينار

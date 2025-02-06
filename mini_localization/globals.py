@@ -31,6 +31,12 @@ def get_locale(locale_id: str = '', fallback_locale_id: str = None) -> Locale:
     return _locales[locale_id]
 
 
+def get_default_locale():
+    from mini_localization.config import default_locale
+
+    return get_locale(default_locale)
+
+
 def setup_locale(locale: Union[BaseLocale, str], fallback_locale_id=None, default_locale=None,
                  locales_dir=None, **setup_kwargs) -> Locale:
     from .setup import setup
@@ -38,3 +44,43 @@ def setup_locale(locale: Union[BaseLocale, str], fallback_locale_id=None, defaul
     global _locales
     _locales[''] = get_locale(locale, fallback_locale_id=fallback_locale_id) if isinstance(locale, str) else locale
     return _locales['']
+
+
+def get(key, default=None, locale=''):
+    return get_locale(locale).get(key, default=default)
+
+
+def get_modifier(key, default=None, locale=''):
+    return get_locale(locale).get_modifier(key, default=default)
+
+
+def get_formatter(key, default=None, locale=''):
+    return get_locale(locale).get_formatter(key, default=default)
+
+
+def format(obj: object, fmt: str = None, default_formatter=None, formatter_id: str = None, locale=''):
+    return get_locale(locale).format(obj, fmt=fmt, default_formatter=default_formatter, formatter_id=formatter_id)
+
+
+def apply_modifier(modifier_id, *args, locale=''):
+    return get_locale(locale).apply_modifier(modifier_id, *args)
+
+
+def get_text(text_key, locale='', **kwargs):
+    return get_locale(locale).get_text(text_key, **kwargs)
+
+
+def register_modifier(modifier_id, modifier_func, locale=None):
+    if locale is None:
+        from mini_localization.config import default_locale
+        locale = default_locale
+
+    return get_locale(locale).register_modifier(modifier_id, modifier_func)
+
+
+def register_formatter(formatter_id, formatter_func, locale=None):
+    if locale is None:
+        from mini_localization.config import default_locale
+        locale = default_locale
+
+    return get_locale(locale).register_formatter(formatter_id, formatter_func)

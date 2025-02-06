@@ -2,9 +2,11 @@ from typing import Optional
 import yaml
 import os
 from collections.abc import Mapping
+import re
 
 DEFAULT_LOCAL_DIR = 'locales'
 default_locale = 'en'
+_INTEGER_REGEX = re.compile('^\d+$')
 
 
 class ConfigDict(Mapping):
@@ -30,10 +32,17 @@ class ConfigDict(Mapping):
             stem_key = '.'.join(stem)
             if stem_key in obj:
                 value = obj[stem_key]
-                if child and isinstance(value, dict):
-                    return ConfigDict.config_get(value, child)
+                if len(child) == 1 and isinstance(value, dict):
+                    if child[0] in value:
+                        return value[child[0]]
+                    elif _INTEGER_REGEX.match(child[0]) and int(child[0]) in value:
+                        return value[int(child[0])]
+                    return None
+
                 elif len(child) == 1 and isinstance(value, list):
                     return value[int(child[0])]
+                elif child and isinstance(value, dict):
+                    return ConfigDict.config_get(value, child)
                 elif not child:
                     return value
         return None

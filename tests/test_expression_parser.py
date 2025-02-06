@@ -57,7 +57,7 @@ class TestExpressionParser(unittest.TestCase):
         self.assertEqual(result[0], "Hello ")
         self.assertIsInstance(result[1], BraceExpression)
         self.assertEqual(result[1].formatted_obj, "name")
-        self.assertEqual(result[1].format_spec, None)
+        self.assertEqual(result[1].format_spec, '')
         self.assertEqual(result[2], " and ")
         self.assertIsInstance(result[3], BracketExpression)
         self.assertEqual(result[3].stem, "plural")
