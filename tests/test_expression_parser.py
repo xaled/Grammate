@@ -67,7 +67,6 @@ class TestExpressionParser(unittest.TestCase):
 
     def test_escape_braces(self):
         result, resolved = self.parser.parse("Hello {{name}}!")
-        print(result, resolved)
         self.assertEqual(len(result), 3)
         self.assertEqual(result[0], "Hello ")
         self.assertEqual(result[1], "{")

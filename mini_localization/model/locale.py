@@ -48,10 +48,8 @@ class Locale(BaseLocale):
         text = self.get(text_key, default=text_key)
         expression_parser = ExpressionParser()
         resolved = False
-        print(text)
         while not resolved:
             result, resolved = expression_parser.parse(text)
-            print(result, resolved)
             buffer = list()
             for part in result:
                 if isinstance(part, BraceExpression):  # formatting
@@ -62,7 +60,6 @@ class Locale(BaseLocale):
                     buffer.append(part)
 
                 text = ''.join(buffer)
-            print(text)
 
         return text
 
