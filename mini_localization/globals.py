@@ -84,3 +84,21 @@ def register_formatter(formatter_id, formatter_func, locale=None):
         locale = default_locale
 
     return get_locale(locale).register_formatter(formatter_id, formatter_func)
+
+
+def modifier(modifier_id, locale):
+    def decorator(modifier_func):
+        register_modifier(modifier_id, modifier_func, locale=locale)
+        return modifier_func
+
+    return decorator
+
+
+def formatter(cls, locale=''):
+    formatter_id = Locale.get_formatter_id(cls)
+
+    def decorator(formatter_func):
+        register_formatter(formatter_id, formatter_func, locale=locale)
+        return formatter_func
+
+    return decorator

@@ -43,6 +43,7 @@ plain_text: 'نص عادي'
 "${price:.2f}": "{price:.2f} [currency]"
 currency: دينار
 "I have [!plural:apple,$count]!": "عندي [!plural:apple,$count]!"
+"I have [!plural2:apple,$count]!": "عندي [!plural2:apple,$count]!"
 apple: تفاحة
 apple.plural:
   - تفاحة
