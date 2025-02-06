@@ -26,14 +26,14 @@ class BracketExpression:
 @dataclass
 class BraceExpression:
     formatted_obj: str
-    format_spec: Optional[str] = None
+    format_spec: str = ''
 
     @staticmethod
     def parse(expression):
         match = BRACE_PATTERN.match(expression)
         if match:
             return BraceExpression(formatted_obj=match.group(1),
-                                   format_spec=match.group(2)[1:] if match.group(2) else None)
+                                   format_spec=match.group(2)[1:] if match.group(2) else '')
 
         return expression
 
