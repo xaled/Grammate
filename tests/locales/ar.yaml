@@ -57,3 +57,7 @@ red.forms:
   fem: حمراء
 "I have a [!adj:notebook,$adj]!": "عندي [!adj:notebook,$adj,masc]!"
 notebook: دفتر
+apple.rules:
+  gender: fem
+notbook.rules:
+  gender: masc

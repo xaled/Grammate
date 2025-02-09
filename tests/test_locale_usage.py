@@ -1,3 +1,4 @@
+import json
 import unittest
 from mini_localization import get_locale, get_text, setup_locale, ProxyLocale, Locale, register_modifier, \
     modifier, formatter
@@ -275,16 +276,33 @@ class TestLocale(unittest.TestCase):
         result = get_text("I have [!a:$adj] [!adj:apple,$adj]!", adj='honest')
         self.assertEqual(result, "I have an honest apple!")
 
-        @modifier('adj2', locale='ar')  # adjective with argreement
+    def test_get_text_with_chained_modifiers(self):
+
+        @modifier('adj', locale='ar')  # gender should be specified for agreement
+        def adj_ar(locale, word, adj, *args):
+            word = locale.get(word, default=word)
+            adj_forms = locale.get(f'{adj}.forms', default={})
+            adj = locale.get(adj, default=adj)
+            if 'fem' in args:
+                adj = adj_forms.get('fem') or adj
+            else:
+                adj = adj_forms.get('masc') or adj
+
+            return f'{word} {adj}'
+
+        @modifier('adj2', locale='ar')  # gender is gotten from locale rules then passed to the first modifier
         def adj2_ar(locale, word, adj, *args):  # get gender
             rules = locale.get(f'{word}.rules', default={})
-            gender = rules.get('a', 'masc')
-            return f"[!adj:{word},{adj},{gender}]"
+            gender = rules.get('gender', 'masc')
+            args = [word, adj, gender]
+            return f"[!adj:{json.dumps(args)[1:-1]}]"
 
-        # self.current_locale = 'ar'
-        # expression = "عندي [!adj2:$thing,$adj]!"
-        # result = get_text(expression, thing='apple', adj='red')
-        # self.assertEqual(result, "I have a red apple!")
+        self.current_locale = 'ar'
+        expression = "عندي [!adj2:$thing,$adj]!"
+        result = get_text(expression, thing='apple', adj='red')
+        self.assertEqual(result, "عندي تفاحة حمراء!")
+        result = get_text(expression, thing='notebook', adj='red')
+        self.assertEqual(result, "عندي دفتر أحمر!")
 
 
 if __name__ == '__main__':
