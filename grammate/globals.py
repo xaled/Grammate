@@ -7,7 +7,7 @@ _locales: dict[str, Locale] = dict()
 
 def get_locale(locale_id: str = '', fallback_locale_id: str = None) -> Locale:
     global _locales
-    from mini_localization.config import load_locale_config
+    from grammate.config import load_locale_config
     from .setup import get_setup_config
 
     setup_config = get_setup_config()
@@ -32,7 +32,7 @@ def get_locale(locale_id: str = '', fallback_locale_id: str = None) -> Locale:
 
 
 def get_default_locale():
-    from mini_localization.config import default_locale
+    from grammate.config import default_locale
 
     return get_locale(default_locale)
 
@@ -72,7 +72,7 @@ def get_text(text_key, locale='', **kwargs):
 
 def register_modifier(modifier_id, modifier_func, locale=None):
     if locale is None:
-        from mini_localization.config import default_locale
+        from grammate.config import default_locale
         locale = default_locale
 
     return get_locale(locale).register_modifier(modifier_id, modifier_func)
@@ -80,7 +80,7 @@ def register_modifier(modifier_id, modifier_func, locale=None):
 
 def register_formatter(formatter_id, formatter_func, locale=None):
     if locale is None:
-        from mini_localization.config import default_locale
+        from grammate.config import default_locale
         locale = default_locale
 
     return get_locale(locale).register_formatter(formatter_id, formatter_func)

@@ -1,6 +1,6 @@
 import json
 import unittest
-from mini_localization import get_locale, get_text, setup_locale, ProxyLocale, Locale, register_modifier, \
+from grammate import get_locale, get_text, setup_locale, ProxyLocale, Locale, register_modifier, \
     modifier, formatter
 from dataclasses import dataclass
 from datetime import date

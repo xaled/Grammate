@@ -1,7 +1,7 @@
 import sys
 import unittest
 import logging
-from mini_localization.config import (
+from grammate.config import (
     flatten_config,
     merge_dicts,
     load_locale_config,

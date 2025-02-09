@@ -4,8 +4,8 @@ _setup_config: Optional[dict] = None
 
 
 def setup(default_locale=None, locales_dir=None, **kwargs):
-    from mini_localization.config import set_default_locale, DEFAULT_LOCAL_DIR
-    from mini_localization.config import default_locale as _default_locale
+    from grammate.config import set_default_locale, DEFAULT_LOCAL_DIR
+    from grammate.config import default_locale as _default_locale
 
     if default_locale:
         set_default_locale(default_locale)

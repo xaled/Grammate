@@ -1,9 +1,9 @@
 import unittest
 from decimal import Decimal
 
-from mini_localization.globals import get_locale
-from mini_localization.model import Locale
-from mini_localization.config import ConfigDict
+from grammate.globals import get_locale
+from grammate.model import Locale
+from grammate.config import ConfigDict
 from dataclasses import dataclass
 
 
