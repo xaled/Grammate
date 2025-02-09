@@ -23,6 +23,28 @@ class Date1:
         return dt.strftime(fmt)
 
 
+@dataclass
+class HijriDate:
+    year: int
+    month: int
+    day: int
+
+    @property
+    def weekday(self):
+        return 0  # always monday :(
+
+    def __localized_format__(self, locale, fmt='long'):
+        key = f"date.format.long" if fmt == 'long' else 'date.format.short'
+        fmt = locale.get(key, default='%Y-%m-%d')
+
+        fmt = fmt.replace('%A', locale.get(f'date.week_day.{self.weekday}', default='None'))  # Full weekday name
+        fmt = fmt.replace('%B', locale.get(f'hijridate.months.{self.month}', default='None'))  # Full month name
+        fmt = fmt.replace('%Y', str(self.year))
+        fmt = fmt.replace('%m', str(self.month))
+        fmt = fmt.replace('%d', str(self.day))
+
+        return fmt
+
 def plural_default(locale, singular, value, *args):
     form = locale.get(singular, default=singular)
     if value != 1:
@@ -31,7 +53,6 @@ def plural_default(locale, singular, value, *args):
     if 'without_value' in args:
         return form
     return f'{value} {form}'
-
 
 def plural_ar(locale, singular, value, *args):
     forms = locale.get(singular + '.plural') or [locale.get(singular)]
@@ -159,6 +180,9 @@ class TestLocale(unittest.TestCase):
         result = get_text("{date:short}", date=Date1(2021, 5, 4))
         self.assertEqual(result, "04/05/2021")
 
+        result = get_text("{date:long}", date=HijriDate(1442, 9, 21))
+        self.assertEqual(result, "الإثنين، 21 رمضان 1442")
+
         self.current_locale = 'ar_MA'
 
         result = get_text("{date:long}", date=Date1(2021, 5, 4))
@@ -166,6 +190,11 @@ class TestLocale(unittest.TestCase):
 
         result = get_text("{date:long}", date=Date1(1988, 9, 21))
         self.assertEqual(result, "الأربعاء، 21 شتنبر 1988")
+
+        # formatting and extending
+        self.current_locale = 'ur'
+        result = get_text("{date:long}", date=HijriDate(1442, 9, 21))
+        self.assertEqual(result, "Monday, رمضان 21, 1442")
 
     def test_get_text_with_plural_modifier(self):
         self.current_locale = 'en'

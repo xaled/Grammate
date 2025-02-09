@@ -1,2 +1,5 @@
 nested:
   $extends: 'ar'
+hijridate:
+  months:
+    $extends: 'ar'
