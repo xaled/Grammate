@@ -26,7 +26,7 @@ pip install grammate
 
 ## Limitations
 
-Grammate is **not a comprehensive localization library** and does **not contain any localization knowledge** (such as currencies, number and date formats) out of the box. You need to implement grammar formatters and modifiers in your code and configuration files.
+Grammate is **not a comprehensive localization library** and does **not contain any localization knowledge** out of the box, such as currencies, number and date formats. You need to implement grammar formatters and modifiers in your code and configuration files.
 
 ---
 
