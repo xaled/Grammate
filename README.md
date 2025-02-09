@@ -288,7 +288,7 @@ def adj2_ar(locale, word, adj, *args):  # Find gender
 
 result = get_text("عندي [!adj2:$thing,$adj]!", thing='apple', adj='red')
 print(result) # عندي تفاحة حمراء!
-result = get_text("عندي [!adj2:$thing,$adj]!", thing='apple', adj='red')
+result = get_text("عندي [!adj2:$thing,$adj]!", thing='notebook', adj='red')
 print(result) # عندي دفتر أحمر!
 ```
 
