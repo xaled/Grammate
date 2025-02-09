@@ -260,6 +260,32 @@ class TestLocale(unittest.TestCase):
         result = get_text("{date:long}", date=date(2021, 5, 4))
         self.assertEqual(result, "الثلاثاء، 04 ماي 2021")
 
+    def test_get_text_with_advanced_modifiers(self):
+        @modifier('a', locale='en')
+        def indefinite_article_english(locale, word, *args):
+            rules = locale.get(f'{word}.rules', default={})
+            word = locale.get(word, default=word)
+            return rules.get('a', None) or ('an' if word[0].lower().startswith(tuple('aeiou')) else 'a')
+
+        self.current_locale = 'en'
+        result = get_text("I have [!a:$adj] [!adj:apple,$adj]!", adj='red')
+        self.assertEqual(result, "I have a red apple!")
+        result = get_text("I have [!a:$adj] [!adj:apple,$adj]!", adj='orange')
+        self.assertEqual(result, "I have an orange apple!")
+        result = get_text("I have [!a:$adj] [!adj:apple,$adj]!", adj='honest')
+        self.assertEqual(result, "I have an honest apple!")
+
+        @modifier('adj2', locale='ar')  # adjective with argreement
+        def adj2_ar(locale, word, adj, *args):  # get gender
+            rules = locale.get(f'{word}.rules', default={})
+            gender = rules.get('a', 'masc')
+            return f"[!adj:{word},{adj},{gender}]"
+
+        # self.current_locale = 'ar'
+        # expression = "عندي [!adj2:$thing,$adj]!"
+        # result = get_text(expression, thing='apple', adj='red')
+        # self.assertEqual(result, "I have a red apple!")
+
 
 if __name__ == '__main__':
     unittest.main()

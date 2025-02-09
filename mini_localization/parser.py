@@ -1,8 +1,10 @@
 from typing import List, Union, Optional, Tuple
 from dataclasses import dataclass
 import re
+import yaml
+from yaml.parser import ParserError as YAMLParserError
 
-BRACKET_PATTERN = re.compile(r'^\[(\$|!)?([a-z0-9_]+(?:\.[a-z0-9_]+)*)(?::([^\]]+))?\]$', re.IGNORECASE)
+BRACKET_PATTERN = re.compile(r'^\[(\$|!)?([a-z0-9_]+(?:\.[a-z0-9_]+)*)(?::(.+))?\]$', re.IGNORECASE)
 BRACE_PATTERN = re.compile(r'^{([a-z_][a-z0-9_]*?)(:[^\}]+)?}$', re.IGNORECASE)
 
 
@@ -16,9 +18,18 @@ class BracketExpression:
     def parse(expression):
         match = BRACKET_PATTERN.match(expression)
         if match:
-            args = tuple(match.group(3).split(',')) if match.group(3) else None
-            # TODO validate args
-            return BracketExpression(match.group(2), special=match.group(1) or None, args=args)
+            args_string = match.group(3).strip() if match.group(3) else None
+            args = None
+            if args_string:
+                args = []
+                try:
+                    args = yaml.safe_load(f"[{args_string}]")
+                except YAMLParserError:
+                    # TODO: log warning
+                    return expression
+
+            return BracketExpression(match.group(2), special=match.group(1) or None,
+                                     args=tuple(args) if args is not None else None)
 
         return expression
 
@@ -57,6 +68,7 @@ class ExpressionParser:
         self.result: List[Union[str, BracketExpression, BraceExpression]] = []
         self.buffer = []
         self.state = "TEXT"
+        previous_state = self.state
         it = iter(text)
         resolved = True
         for char in it:
@@ -69,19 +81,14 @@ class ExpressionParser:
                     self.flush_buffer()
                     self.state = "BRACKET"
                     self.buffer.append(char)
-                elif char == "}" and self.buffer[-1] == '}':
-                    pass
-                elif char == "]" and self.buffer[-1] == ']':
-                    pass
+                elif char == '\\':
+                    previous_state = self.state
+                    self.state = 'ESCAPE'
                 else:
                     self.buffer.append(char)
 
             elif self.state == "BRACE":
-                if char == "{":  # Escaped {{
-                    # self.buffer.append(char)  # Keep first '{'
-                    self.flush_buffer()
-                    self.state = "TEXT"
-                elif char == "}":  # Closing brace
+                if char == "}":  # Closing brace
                     self.buffer.append(char)
                     expression = self.pop_buffer()
                     content = BraceExpression.parse(expression)
@@ -89,15 +96,14 @@ class ExpressionParser:
                         resolved = False
                     self.result.append(content)
                     self.state = "TEXT"
+                elif char == '\\':
+                    previous_state = self.state
+                    self.state = 'ESCAPE'
                 else:
                     self.buffer.append(char)
 
             elif self.state == "BRACKET":
-                if char == "[":  # Escaped [[
-                    # self.buffer.append(char)  # Keep first '['
-                    self.flush_buffer()
-                    self.state = "TEXT"
-                elif char == "]":  # Closing bracket
+                if char == "]":  # Closing bracket
                     self.buffer.append(char)
                     expression = self.pop_buffer()
                     content = BracketExpression.parse(expression)
@@ -105,8 +111,16 @@ class ExpressionParser:
                         resolved = False
                     self.result.append(content)
                     self.state = "TEXT"
+                elif char == '\\':
+                    previous_state = self.state
+                    self.state = 'ESCAPE'
                 else:
                     self.buffer.append(char)
+            elif self.state == "ESCAPE":
+                if char not in ('\\', '{', '[', '}', ']'):
+                    self.buffer.append('\\')
+                self.buffer.append(char)
+                self.state = previous_state
 
         self.flush_buffer()
         return self.result, resolved

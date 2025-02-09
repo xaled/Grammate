@@ -51,6 +51,13 @@ class TestExpressionParser(unittest.TestCase):
         self.assertEqual(result[0].special, "!")
         self.assertEqual(result[0].args, ("apple", "$color", "fem", "indef", "marfu3"))
 
+    def test_bracket_expression_3(self):
+        result, resolved = self.parser.parse("[!adj:apple,$color,null,2,true]")
+        self.assertIsInstance(result[0], BracketExpression)
+        self.assertEqual(result[0].stem, "adj")
+        self.assertEqual(result[0].special, "!")
+        self.assertEqual(result[0].args, ("apple", "$color", None, 2, True))
+
     def test_multiple_expressions(self):
         result, resolved = self.parser.parse("Hello {name} and [!plural:friend,$count]!")
         self.assertEqual(len(result), 5)
@@ -66,20 +73,34 @@ class TestExpressionParser(unittest.TestCase):
         self.assertTrue(not resolved)
 
     def test_escape_braces(self):
-        result, resolved = self.parser.parse("Hello {{name}}!")
-        self.assertEqual(len(result), 3)
-        self.assertEqual(result[0], "Hello ")
-        self.assertEqual(result[1], "{")
-        self.assertEqual(result[2], "name}!")
+        result, resolved = self.parser.parse("Hello \\{name}!")
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0], "Hello {name}!")
+        self.assertTrue(resolved)
+        result, resolved = self.parser.parse("Hello \\{name\\}!")
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0], "Hello {name}!")
         self.assertTrue(resolved)
 
     def test_escape_brackets(self):
-        result, resolved = self.parser.parse("Hello [[name]]!")
-        self.assertEqual(len(result), 3)
-        self.assertEqual(result[0], "Hello ")
-        self.assertEqual(result[1], "[")
-        self.assertEqual(result[2], "name]!")
+        # obligatory open bracket escape
+        result, resolved = self.parser.parse("Hello \\[name]!")
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0], "Hello [name]!")
         self.assertTrue(resolved)
+
+        # optional close bracket escape
+        result, resolved = self.parser.parse("Hello \\[name\\]!")
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0], "Hello [name]!")
+        self.assertTrue(resolved)
+
+        # escaping inside bracket expression
+        result, resolved = self.parser.parse(r"[!adj:apple,'key\subkey',\[1,2,3\],null,2,true]")
+        self.assertIsInstance(result[0], BracketExpression)
+        self.assertEqual(result[0].stem, "adj")
+        self.assertEqual(result[0].special, "!")
+        self.assertEqual(result[0].args, ('apple', r'key\subkey', [1, 2, 3], None, 2, True))
 
 
 if __name__ == '__main__':
