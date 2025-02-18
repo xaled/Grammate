@@ -6,7 +6,7 @@ import re
 
 DEFAULT_LOCAL_DIR = 'locales'
 default_locale = 'en'
-_INTEGER_REGEX = re.compile('^\d+$')
+_INTEGER_REGEX = re.compile(r'^\d+$')
 
 
 class ConfigDict(Mapping):
