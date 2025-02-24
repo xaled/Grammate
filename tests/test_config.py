@@ -1,7 +1,7 @@
 import sys
 import unittest
 import logging
-from grammate.config import (
+from grammate import (
     flatten_config,
     merge_dicts,
     load_locale_config,
@@ -11,49 +11,6 @@ TEST_LOCALES_DIR = "locales"
 
 
 class TestLocalizationConfigs(unittest.TestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     os.makedirs(TEST_LOCALES_DIR, exist_ok=True)
-    #     cls.create_sample_locales()
-    #
-    # @classmethod
-    # def create_sample_locales(cls):
-    #     # Sample locale files
-    #     locales = {
-    #         "en": {
-    #             "greeting": "Hello",
-    #             "farewell": "Goodbye",
-    #             "nested": {
-    #                 "key": "Value"
-    #             }
-    #         },
-    #         "fr": {
-    #             "$extends": "en",
-    #             "greeting": "Bonjour"
-    #         },
-    #         "ar_MA": {
-    #             "$extends": "ar",
-    #             "greeting": "مرحبا"
-    #         },
-    #         "ar": {
-    #             "greeting": "أهلاً"
-    #         },
-    #         "ur": {
-    #             "$extends": "en",
-    #             "farewell": "الوداع"
-    #         }
-    #     }
-    #
-    #     for locale, data in locales.items():
-    #         with open(os.path.join(TEST_LOCALES_DIR, f"{locale}.yaml"), "w", encoding="utf-8") as f:
-    #             yaml.dump(data, f)
-    #
-    # @classmethod
-    # def tearDownClass(cls):
-    #     for file in os.listdir(TEST_LOCALES_DIR):
-    #         os.remove(os.path.join(TEST_LOCALES_DIR, file))
-    #     os.rmdir(TEST_LOCALES_DIR)
-
     def test_flatten_config(self):
         input_data = {
             "a": {

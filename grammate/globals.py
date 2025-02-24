@@ -2,10 +2,10 @@ from typing import Union
 
 from .model import Locale, BaseLocale
 
-_locales: dict[str, Locale] = dict()
+_locales: dict[str, 'Locale'] = dict()
 
 
-def get_locale(locale_id: str = '', fallback_locale_id: str = None) -> Locale:
+def get_locale(locale_id: str = '', fallback_locale_id: str = None) -> 'Locale':
     global _locales
     from grammate.config import load_locale_config
     from .setup import get_setup_config
@@ -32,21 +32,21 @@ def get_locale(locale_id: str = '', fallback_locale_id: str = None) -> Locale:
 
 
 def get_default_locale():
-    from grammate.config import default_locale
+    from grammate.config import default_locale_id
 
-    return get_locale(default_locale)
+    return get_locale(default_locale_id)
 
 
-def setup_locale(locale: Union[BaseLocale, str] = None, fallback_locale_id=None, default_locale=None,
-                 locales_dir=None, **setup_kwargs) -> Locale:
+def setup_locale(locale: Union['BaseLocale', str] = None, fallback_locale_id=None, default_locale=None,
+                 locales_dir=None, **setup_kwargs) -> 'Locale':
     from .setup import setup
     setup(default_locale=default_locale, locales_dir=locales_dir, **setup_kwargs)
 
     if isinstance(locale, BaseLocale):
         locale_obj = locale
     else:
-        from .config import default_locale as _default_locale
-        locale_obj = get_locale(locale or _default_locale, fallback_locale_id=fallback_locale_id)
+        from .config import default_locale_id
+        locale_obj = get_locale(locale or default_locale_id, fallback_locale_id=fallback_locale_id)
     global _locales
     _locales[''] = locale_obj
     return _locales['']
@@ -78,16 +78,16 @@ def get_text(text_key, locale='', **kwargs):
 
 def register_modifier(modifier_id, modifier_func, locale=None):
     if locale is None:
-        from grammate.config import default_locale
-        locale = default_locale
+        from grammate.config import default_locale_id
+        locale = default_locale_id
 
     return get_locale(locale).register_modifier(modifier_id, modifier_func)
 
 
 def register_formatter(formatter_id, formatter_func, locale=None):
     if locale is None:
-        from grammate.config import default_locale
-        locale = default_locale
+        from grammate.config import default_locale_id
+        locale = default_locale_id
 
     return get_locale(locale).register_formatter(formatter_id, formatter_func)
 

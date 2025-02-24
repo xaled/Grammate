@@ -1,5 +1,4 @@
-from .base import BaseLocale
-from .locale import Locale
+from .locale import Locale, BaseLocale
 from abc import abstractmethod, ABC
 
 

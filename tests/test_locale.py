@@ -1,9 +1,5 @@
 import unittest
-from decimal import Decimal
-
-from grammate.globals import get_locale
-from grammate.model import Locale
-from grammate.config import ConfigDict
+from grammate import get_locale, Locale, ConfigDict
 from dataclasses import dataclass
 
 

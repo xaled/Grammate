@@ -1,5 +1,5 @@
 import unittest
-from grammate.parser import ExpressionParser, BraceExpression, BracketExpression
+from grammate import ExpressionParser, BraceExpression, BracketExpression
 
 
 class TestExpressionParser(unittest.TestCase):

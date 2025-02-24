@@ -1,11 +1,14 @@
+__all__ = ['flatten_config', 'merge_dicts', 'load_locale_config', 'ConfigDict', 'default_locale_id',
+           'DEFAULT_CONFIG_DIR']
+
 from typing import Optional
 import yaml
 import os
 from collections.abc import Mapping
 import re
 
-DEFAULT_LOCAL_DIR = 'locales'
-default_locale = 'en'
+DEFAULT_CONFIG_DIR = 'locales'
+default_locale_id = 'en'
 _INTEGER_REGEX = re.compile(r'^\d+$')
 
 
@@ -48,9 +51,9 @@ class ConfigDict(Mapping):
         return None
 
 
-def set_default_locale(locale):
-    global default_locale
-    default_locale = locale
+def set_default_locale_id(locale):
+    global default_locale_id
+    default_locale_id = locale
 
 
 def flatten_config(obj: dict, parent_key: str = '', ) -> dict:
@@ -71,7 +74,7 @@ def _load_single(yaml_path: str) -> Optional[dict]:
     return None
 
 
-def _load_config(locale: str, locales_dir: str = DEFAULT_LOCAL_DIR):
+def _load_config(locale: str, locales_dir: str = DEFAULT_CONFIG_DIR):
     locale_path = os.path.join(locales_dir, f'{locale}.yaml')
     return _load_single(locale_path)
 
@@ -92,7 +95,7 @@ def merge_dicts(base: dict, override: dict) -> dict:
     return base
 
 
-def load_locale_config(locale: str, locales_dir: str = DEFAULT_LOCAL_DIR,
+def load_locale_config(locale: str, locales_dir: str = DEFAULT_CONFIG_DIR,
                        fallback_locale: Optional[str] = None) -> ConfigDict:
     lang, _, country = locale.partition('_')
     # Load locale configurations
@@ -104,7 +107,7 @@ def load_locale_config(locale: str, locales_dir: str = DEFAULT_LOCAL_DIR,
             return load_locale_config(fallback_locale, locales_dir=locales_dir)
         if locale != lang:
             return load_locale_config(lang, locales_dir=locales_dir)
-        if locale != default_locale:
+        if locale != default_locale_id:
             return load_locale_config(lang, locales_dir=locales_dir)
         locale_config = dict()
 
@@ -112,8 +115,8 @@ def load_locale_config(locale: str, locales_dir: str = DEFAULT_LOCAL_DIR,
     if not locale_config.get('$extends'):
         if locale != lang:
             locale_config['$extends'] = lang
-        elif locale != default_locale:
-            locale_config['$extends'] = default_locale
+        elif locale != default_locale_id:
+            locale_config['$extends'] = default_locale_id
 
     # # Load default configurations
     # default_path = os.path.join(locales_dir, 'defaults.yaml')

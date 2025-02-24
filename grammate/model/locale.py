@@ -6,7 +6,7 @@ from ..parser import ExpressionParser, BracketExpression, BraceExpression
 
 
 class Locale(BaseLocale):
-    def __init__(self, config: ConfigDict, fallback_locale: Optional['Locale'] = None):
+    def __init__(self, config: 'ConfigDict', fallback_locale: Optional['Locale'] = None):
         self.config = config
         self.modifiers = dict()
         self.formatters = dict()
@@ -69,7 +69,7 @@ class Locale(BaseLocale):
     def register_formatter(self, formatter_id, formatter_func):
         self.formatters[formatter_id] = formatter_func
 
-    def _process_bracket_expr(self, bracket_expr: BracketExpression, **kwargs) -> str:
+    def _process_bracket_expr(self, bracket_expr: 'BracketExpression', **kwargs) -> str:
         key = bracket_expr.stem
 
         if bracket_expr.special == '!':

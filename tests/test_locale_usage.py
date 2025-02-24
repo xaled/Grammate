@@ -45,6 +45,7 @@ class HijriDate:
 
         return fmt
 
+
 def plural_default(locale, singular, value, *args):
     form = locale.get(singular, default=singular)
     if value != 1:
@@ -53,6 +54,7 @@ def plural_default(locale, singular, value, *args):
     if 'without_value' in args:
         return form
     return f'{value} {form}'
+
 
 def plural_ar(locale, singular, value, *args):
     forms = locale.get(singular + '.plural') or [locale.get(singular)]

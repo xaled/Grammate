@@ -1,10 +1,39 @@
 #!/usr/bin/env python3
-from distutils.core import setup
+from setuptools import setup
 
 VERSION = '1.0.0'  # major.minor.fix
+URL = 'https://github.com/xaled/Grammate'
+DESCRIPTION = 'A Python tool that merges multi-file modules into a single, self-contained script.'
+
+
+def convert_rst(markdown_text, fallback_rst=None):
+    try:
+        import pypandoc
+        return pypandoc.convert_text(markdown_text, 'rst', format='md')
+    except:
+        try:
+            import m2r2
+            return m2r2.convert(markdown_text)
+        except:
+            return fallback_rst or markdown_text
+
+
+def load_requirements(requirements_file="requirements.txt"):
+    try:
+        with open(requirements_file, 'r') as fin:
+            requirements = [line.split('#')[0].strip() for line in fin]
+            requirements = [line for line in requirements if line]
+        return requirements
+    except FileNotFoundError:
+        print(f"Requirements file '{requirements_file}' not found.")
+        return []
+    except Exception as e:
+        print(f"Error loading requirements: {e}")
+        return []
+
 
 with open('README.md', 'r') as f:
-    long_description = f.read()
+    long_description = convert_rst(f.read().replace('\n\n', '\n'))
 
 with open('LICENSE', 'r') as f:
     license_text = f.read()
@@ -13,7 +42,7 @@ if __name__ == "__main__":
     setup(
         name='grammate',
         version=VERSION,
-        description='Grammate is a lightweight Python module for localization based on formal grammars.',
+        description=DESCRIPTION,
         long_description=long_description,
         long_description_content_type='text/markdown',
         keywords='grammar localization',
@@ -25,8 +54,8 @@ if __name__ == "__main__":
             'Programming Language :: Python',
         ],
         license='MIT',
-        url='https://github.com/xaled/Grammate',
-        install_requires=['PyYAML'],
+        url=URL,
+        install_requires=load_requirements(),
         python_requires='>=3',
         packages=['grammate'],
         package_data={
